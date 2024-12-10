@@ -12,6 +12,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.boot.platform.code.builder.CodeRuleBuilder;
 import org.hzero.boot.platform.lov.adapter.LovAdapter;
 import org.hzero.boot.platform.lov.dto.LovValueDTO;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.hand.demo.app.service.InvoiceApplyHeaderService;
 import org.springframework.stereotype.Service;
@@ -89,13 +90,12 @@ public class InvoiceApplyHeaderServiceImpl implements InvoiceApplyHeaderService 
 
     //validation
     private List<InvoiceApplyHeader> validate(List<InvoiceApplyHeader> invoiceApplyHeaderList) {
+        // Retrieve the necessary maps
+        Map<String, String> statusMap = getLovMap(Constants.LOV_CODE_STATUS, invoiceApplyHeaderList.get(0).getTenantId());
+        Map<String, String> invoiceColorMap = getLovMap(Constants.LOV_CODE_INVOICE_COLOR, invoiceApplyHeaderList.get(0).getTenantId());
+        Map<String, String> invoiceTypeMap = getLovMap(Constants.LOV_CODE_INVOICE_TYPE, BaseConstants.DEFAULT_TENANT_ID);
         // Iterate over the invoiceApplyHeaderList
         for (InvoiceApplyHeader invoiceApplyHeader1 : invoiceApplyHeaderList) {
-            // Retrieve the necessary maps
-            Map<String, String> statusMap = getLovMap(Constants.LOV_CODE_STATUS, invoiceApplyHeader1.getTenantId());
-            Map<String, String> invoiceColorMap = getLovMap(Constants.LOV_CODE_INVOICE_COLOR, invoiceApplyHeader1.getTenantId());
-            Map<String, String> invoiceTypeMap = getLovMap(Constants.LOV_CODE_INVOICE_TYPE, invoiceApplyHeader1.getTenantId());
-
             // Retrieve meaning values based on the current invoiceApplyHeader's properties
             String statusMeaning = statusMap.get(invoiceApplyHeader1.getApplyStatus());
             String invoiceColorMeaning = invoiceColorMap.get(invoiceApplyHeader1.getInvoiceColor());
