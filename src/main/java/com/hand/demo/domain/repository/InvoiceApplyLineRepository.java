@@ -19,7 +19,7 @@ public interface InvoiceApplyLineRepository extends BaseRepository<InvoiceApplyL
      * @param invoiceApplyLine 查询条件
      * @return 返回值
      */
-    List<InvoiceApplyLine> selectList(InvoiceApplyLine invoiceApplyLine);
+    List<InvoiceApplyLineDTO> selectList(InvoiceApplyLineDTO invoiceApplyLine);
 
     /**
      * 根据主键查询（可关联表）
@@ -27,7 +27,7 @@ public interface InvoiceApplyLineRepository extends BaseRepository<InvoiceApplyL
      * @param applyLineId 主键
      * @return 返回值
      */
-    InvoiceApplyLine selectByPrimary(Long applyLineId);
+    InvoiceApplyLineDTO selectByPrimary(Long applyLineId);
 
     List<InvoiceApplyLineDTO> selectListDto(InvoiceApplyLine invoiceApplyLine);
 }

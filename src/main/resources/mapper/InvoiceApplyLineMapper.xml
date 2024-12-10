@@ -39,7 +39,7 @@
         tial.object_version_number
     </sql>
 
-    <select id = "selectList" resultType = "com.hand.demo.domain.entity.InvoiceApplyLine">
+    <select id = "selectList" resultType = "com.hand.demo.api.dto.InvoiceApplyLineDTO">
         select
         <include refid = "BaseSql"/>
         from todo_invoice_apply_line tial

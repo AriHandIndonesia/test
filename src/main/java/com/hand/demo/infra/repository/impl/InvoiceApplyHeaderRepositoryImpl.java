@@ -35,14 +35,13 @@ public class InvoiceApplyHeaderRepositoryImpl extends BaseRepositoryImpl<Invoice
     @Autowired
     private LovAdapter lovAdapter;
 
-    @Autowired
-    private InvoiceApplyLineMapper invoiceApplyLineMapper;
+
 
     @Override
-    public List<InvoiceApplyHeaderDTO> selectList(InvoiceApplyHeader invoiceApplyHeader) {
+    public List<InvoiceApplyHeaderDTO> selectList(InvoiceApplyHeaderDTO invoiceApplyHeader) {
         //V 1.1 [S]
 //        return invoiceApplyHeaderMapper.selectList(invoiceApplyHeader);
-        invoiceApplyHeader.setDelFlag(invoiceApplyHeader.getDelFlag() == null ? 0 : invoiceApplyHeader.getDelFlag());
+//        invoiceApplyHeader.setDelFlag(invoiceApplyHeader.getDelFlag() == null ? 0 : invoiceApplyHeader.getDelFlag()); //not neeeded
         List<InvoiceApplyHeaderDTO> invoiceApplyHeaderList = invoiceApplyHeaderMapper.selectList(invoiceApplyHeader);
         return invoiceApplyHeaderList;
         //V 1.1 [E]
@@ -58,11 +57,6 @@ public class InvoiceApplyHeaderRepositoryImpl extends BaseRepositoryImpl<Invoice
             return null;
         }
         invoiceApplyHeader = invoiceApplyHeaders.get(0);
-
-        //select list of line
-        InvoiceApplyLine invoiceApplyLine = new InvoiceApplyLine().setApplyHeaderId(invoiceApplyHeader.getApplyHeaderId());
-        invoiceApplyHeader.setInvoiceApplyLineList(invoiceApplyLineMapper.selectList(invoiceApplyLine));
-
         return invoiceApplyHeader;
     }
 }

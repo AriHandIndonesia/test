@@ -33,11 +33,11 @@ public class ImportHeaderServiceImpl implements IBatchImportService {
 
     @Override
     public Boolean doImport(List<String> data) {
-        List<InvoiceApplyHeader> invoiceApplyHeaderList = new ArrayList<>();
+        List<InvoiceApplyHeaderDTO> invoiceApplyHeaderList = new ArrayList<>();
         Long organizationId = DetailsHelper.getUserDetails().getOrganizationId();
         try {
             for (int i = 0; i < data.size(); i++) {
-                InvoiceApplyHeader invoiceApplyHeader = objectMapper.readValue(data.get(i), InvoiceApplyHeaderDTO.class);
+                InvoiceApplyHeaderDTO invoiceApplyHeader = objectMapper.readValue(data.get(i), InvoiceApplyHeaderDTO.class);
                 invoiceApplyHeader.setTenantId(organizationId);
 
                 if (StringUtil.isNotEmpty(invoiceApplyHeader.getApplyHeaderNumber())){

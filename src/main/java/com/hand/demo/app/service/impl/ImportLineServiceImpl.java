@@ -28,11 +28,11 @@ public class ImportLineServiceImpl implements IBatchImportService {
 
     @Override
     public Boolean doImport(List<String> data) {
-        List<InvoiceApplyLine> invoiceApplyLineList = new ArrayList<>();
+        List<InvoiceApplyLineDTO> invoiceApplyLineList = new ArrayList<>();
         Long organizationId = DetailsHelper.getUserDetails().getOrganizationId();
         try {
             for (int i = 0; i < data.size(); i++) {
-                InvoiceApplyLine invoiceApplyLine = objectMapper.readValue(data.get(i), InvoiceApplyLine.class);
+                InvoiceApplyLineDTO invoiceApplyLine = objectMapper.readValue(data.get(i), InvoiceApplyLineDTO.class);
                 invoiceApplyLine.setTenantId(organizationId);
 
                 // Retrieve the existing line

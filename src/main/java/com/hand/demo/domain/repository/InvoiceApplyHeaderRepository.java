@@ -19,7 +19,7 @@ public interface InvoiceApplyHeaderRepository extends BaseRepository<InvoiceAppl
      * @param invoiceApplyHeader 查询条件
      * @return 返回值
      */
-    List<InvoiceApplyHeaderDTO> selectList(InvoiceApplyHeader invoiceApplyHeader);
+    List<InvoiceApplyHeaderDTO> selectList(InvoiceApplyHeaderDTO invoiceApplyHeader);
 
     /**
      * 根据主键查询（可关联表）

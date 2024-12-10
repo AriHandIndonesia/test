@@ -17,6 +17,9 @@ public class Constants {
     public static final String TEMPLATE_CODE_MESSAGE = "HEXAM-47835-MESSAGE";
     public static final String EMAIL_SENDER = "muhammad.ari@hand-global.com";
     public static final String REDIS_QUEUE = "invoiceInfo_47835";
+    public static final String REDIS_INVOICE_HEADER_PREFIX = "hexam-47835:InvoiceHeader:";
+    public static final String REDIS_LOV_CODE_PREFIX = "hexam-47835:lov:";
+    public static final String REDIS_INVOICE_LINE_PREFIX = "hexam-47835:InvoiceLine:";
 
     private Constants() {}
 

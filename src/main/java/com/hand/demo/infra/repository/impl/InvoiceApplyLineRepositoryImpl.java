@@ -24,15 +24,15 @@ public class InvoiceApplyLineRepositoryImpl extends BaseRepositoryImpl<InvoiceAp
     private InvoiceApplyLineMapper invoiceApplyLineMapper;
 
     @Override
-    public List<InvoiceApplyLine> selectList(InvoiceApplyLine invoiceApplyLine) {
+    public List<InvoiceApplyLineDTO> selectList(InvoiceApplyLineDTO invoiceApplyLine) {
         return invoiceApplyLineMapper.selectList(invoiceApplyLine);
     }
 
     @Override
-    public InvoiceApplyLine selectByPrimary(Long applyLineId) {
-        InvoiceApplyLine invoiceApplyLine = new InvoiceApplyLine();
+    public InvoiceApplyLineDTO selectByPrimary(Long applyLineId) {
+        InvoiceApplyLineDTO invoiceApplyLine = new InvoiceApplyLineDTO();
         invoiceApplyLine.setApplyLineId(applyLineId);
-        List<InvoiceApplyLine> invoiceApplyLines = invoiceApplyLineMapper.selectList(invoiceApplyLine);
+        List<InvoiceApplyLineDTO> invoiceApplyLines = invoiceApplyLineMapper.selectList(invoiceApplyLine);
         if (invoiceApplyLines.size() == 0) {
             return null;
         }

@@ -23,16 +23,17 @@ public interface InvoiceApplyLineService {
      * @param invoiceApplyLines 查询条件
      * @return 返回值
      */
-    Page<InvoiceApplyLine> selectList(PageRequest pageRequest, InvoiceApplyLine invoiceApplyLines);
+    Page<InvoiceApplyLine> selectList(PageRequest pageRequest, InvoiceApplyLineDTO invoiceApplyLines);
 
     /**
      * 保存数据
      *
      * @param invoiceApplyLines 数据
      */
-    void saveData(List<InvoiceApplyLine> invoiceApplyLines);
-    void calculate(List<InvoiceApplyLine> invoiceApplyLines, Boolean doUpdateHeader);
+    void saveData(List<InvoiceApplyLineDTO> invoiceApplyLines);
+    void calculate(List<InvoiceApplyLineDTO> invoiceApplyLines, Boolean doUpdateHeader);
     List<InvoiceApplyLineDTO> exportData(InvoiceApplyLineDTO invoiceApplyHeaderDTO);
-
+    InvoiceApplyLineDTO selectDetail(Long applyLineId);
+    void redisUpdate(List<InvoiceApplyLineDTO> invoiceApplyLines);
 }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.hand.demo.api.dto.InvoiceApplyHeaderDTO;
 import com.hand.demo.domain.entity.InvoiceApplyLine;
+import com.hand.demo.infra.util.Utils;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
@@ -58,6 +59,9 @@ public class InvoiceApplyHeaderController extends BaseController {
     @Autowired
     private RedisHelper redisHelper;
 
+    @Autowired
+    private Utils utils;
+
     @ApiOperation(value = "List")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping
@@ -75,34 +79,14 @@ public class InvoiceApplyHeaderController extends BaseController {
     @ProcessLovValue(targetField = BaseConstants.FIELD_BODY)
     public ResponseEntity<InvoiceApplyHeaderDTO> detail(@PathVariable Long applyHeaderId) {
 //        InvoiceApplyHeaderDTO invoiceApplyHeader = invoiceApplyHeaderRepository.selectByPrimary(applyHeaderId);
-        //check redis
-        InvoiceApplyHeaderDTO invoiceApplyHeader = new InvoiceApplyHeaderDTO();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String redisData = redisHelper.strGet("InvoiceHeader-234-" + applyHeaderId);
-
-        if (StringUtil.isEmpty(redisData)) {
-            invoiceApplyHeader = invoiceApplyHeaderRepository.selectByPrimary(applyHeaderId);
-            //add to redis
-            try {
-                String invoiceString = objectMapper.writeValueAsString(invoiceApplyHeader);
-                redisHelper.strSet("invoiceHeader" + applyHeaderId, invoiceString, 300, TimeUnit.SECONDS);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            try {
-                invoiceApplyHeader = objectMapper.readValue(redisData, InvoiceApplyHeaderDTO.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return Results.success(invoiceApplyHeader);
+        return Results.success(invoiceApplyHeaderService.selectDetail(applyHeaderId));
     }
 
     @ApiOperation(value = "Create or Update")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
-    public ResponseEntity<List<InvoiceApplyHeader>> save(@PathVariable Long organizationId, @RequestBody List<InvoiceApplyHeader> invoiceApplyHeaders) {
+    public ResponseEntity<List<InvoiceApplyHeaderDTO>> save(@PathVariable Long organizationId,
+                                                            @RequestBody List<InvoiceApplyHeaderDTO> invoiceApplyHeaders) {
         validObject(invoiceApplyHeaders);
         SecurityTokenHelper.validTokenIgnoreInsert(invoiceApplyHeaders);
         invoiceApplyHeaders.forEach(item -> item.setTenantId(organizationId));
@@ -113,16 +97,12 @@ public class InvoiceApplyHeaderController extends BaseController {
     @ApiOperation(value = "delete")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping
-    public ResponseEntity<?> remove(@PathVariable Long organizationId, @RequestBody List<InvoiceApplyHeader> invoiceApplyHeaders) {
+    public ResponseEntity<?> remove(@PathVariable Long organizationId, @RequestBody List<InvoiceApplyHeaderDTO> invoiceApplyHeaders) {
         SecurityTokenHelper.validToken(invoiceApplyHeaders);
         //V 1.1 [S]
 //        invoiceApplyHeaderRepository.batchDeleteByPrimaryKey(invoiceApplyHeaders);
-        invoiceApplyHeaders.forEach(item -> {
-            item.setTenantId(organizationId);
-            item.setDelFlag(1);
-        });
-        invoiceApplyHeaderRepository.batchUpdateByPrimaryKeySelective(invoiceApplyHeaders);
-        //V 1.1 [E[
+        invoiceApplyHeaderService.remove(organizationId, invoiceApplyHeaders);
+        //V 1.1 [E]
         return Results.success();
     }
 
@@ -130,7 +110,6 @@ public class InvoiceApplyHeaderController extends BaseController {
     @ApiOperation(value = "export")
     @GetMapping("/export")
     @ExcelExport(value = InvoiceApplyHeaderDTO.class)
-    @ProcessLovValue(targetField = BaseConstants.FIELD_BODY)
     public ResponseEntity<List<InvoiceApplyHeaderDTO>> export(InvoiceApplyHeaderDTO invoiceApplyHeaderDTO,
                                                               ExportParam exportParam,
                                                               HttpServletResponse response,

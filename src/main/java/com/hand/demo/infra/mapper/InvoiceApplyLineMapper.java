@@ -19,7 +19,7 @@ public interface InvoiceApplyLineMapper extends BaseMapper<InvoiceApplyLine> {
      * @param invoiceApplyLine 查询条件
      * @return 返回值
      */
-    List<InvoiceApplyLine> selectList(InvoiceApplyLine invoiceApplyLine);
+    List<InvoiceApplyLineDTO> selectList(InvoiceApplyLine invoiceApplyLine);
     List<InvoiceApplyLineDTO> selectListDto(InvoiceApplyLine invoiceApplyLine);
 }
 

@@ -1,13 +1,19 @@
 package com.hand.demo.app.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hand.demo.api.dto.InvoiceApplyHeaderDTO;
 import com.hand.demo.api.dto.InvoiceApplyLineDTO;
+import com.hand.demo.domain.entity.InvoiceApplyHeader;
 import com.hand.demo.domain.repository.InvoiceApplyHeaderRepository;
 import com.hand.demo.infra.constant.Constants;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.util.StringUtil;
+import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.hand.demo.app.service.InvoiceApplyLineService;
 import org.springframework.stereotype.Service;
@@ -17,6 +23,7 @@ import com.hand.demo.domain.repository.InvoiceApplyLineRepository;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -32,13 +39,16 @@ public class InvoiceApplyLineServiceImpl implements InvoiceApplyLineService {
     @Autowired
     private InvoiceApplyHeaderRepository invoiceApplyHeaderRepository;
 
+    @Autowired
+    private RedisHelper redisHelper;
+
     @Override
-    public Page<InvoiceApplyLine> selectList(PageRequest pageRequest, InvoiceApplyLine invoiceApplyLine) {
+    public Page<InvoiceApplyLine> selectList(PageRequest pageRequest, InvoiceApplyLineDTO invoiceApplyLine) {
         return PageHelper.doPageAndSort(pageRequest, () -> invoiceApplyLineRepository.selectList(invoiceApplyLine));
     }
 
     @Override
-    public void saveData(List<InvoiceApplyLine> invoiceApplyLines) {
+    public void saveData(List<InvoiceApplyLineDTO> invoiceApplyLines) {
         //V 1.1 [S]
         validate(invoiceApplyLines);
         calculate(invoiceApplyLines, false);
@@ -48,17 +58,18 @@ public class InvoiceApplyLineServiceImpl implements InvoiceApplyLineService {
         invoiceApplyLineRepository.batchInsertSelective(insertList);
         invoiceApplyLineRepository.batchUpdateByPrimaryKeySelective(updateList);
         calculate(invoiceApplyLines, true); //V 1.1 [S.E]
+        redisUpdate(invoiceApplyLines);
     }
 
     //calculate
     @Override
-    public void calculate(List<InvoiceApplyLine> invoiceApplyLines, Boolean doUpdateHeader) {
+    public void calculate(List<InvoiceApplyLineDTO> invoiceApplyLines, Boolean doUpdateHeader) {
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal exclude = BigDecimal.ZERO;
         BigDecimal tax_amount = BigDecimal.ZERO;
         Long headerId = invoiceApplyLines.get(0).getApplyHeaderId();
         if (doUpdateHeader) {
-            InvoiceApplyLine invoiceApplyLine = new InvoiceApplyLine();
+            InvoiceApplyLineDTO invoiceApplyLine = new InvoiceApplyLineDTO();
             invoiceApplyLine.setApplyHeaderId(headerId);
             invoiceApplyLines = invoiceApplyLineRepository.selectList(invoiceApplyLine);
         }
@@ -76,8 +87,8 @@ public class InvoiceApplyLineServiceImpl implements InvoiceApplyLineService {
             invoiceApplyLines1.setTaxAmount(taxAmount);
             invoiceApplyLines1.setExcludeTaxAmount(excludeAmount);
         }
-        if (doUpdateHeader){
-            InvoiceApplyHeaderDTO invoiceApplyHeaderDTO =  invoiceApplyHeaderRepository.selectByPrimary(headerId);
+        if (doUpdateHeader) {
+            InvoiceApplyHeaderDTO invoiceApplyHeaderDTO = invoiceApplyHeaderRepository.selectByPrimary(headerId);
             invoiceApplyHeaderDTO.setTotalAmount(total);
             invoiceApplyHeaderDTO.setExcludeTaxAmount(exclude);
             invoiceApplyHeaderDTO.setTaxAmount(tax_amount);
@@ -92,12 +103,45 @@ public class InvoiceApplyLineServiceImpl implements InvoiceApplyLineService {
         return invoiceApplyLineRepository.selectListDto(invoiceApplyLineDTO);
     }
 
+    @Override
+    public InvoiceApplyLineDTO selectDetail(Long applyLineId) {
+        //check redis
+        InvoiceApplyLineDTO invoiceApplyLine = new InvoiceApplyLineDTO();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String redisData = redisHelper.strGet(Constants.REDIS_INVOICE_LINE_PREFIX + applyLineId);
+        if (StringUtil.isEmpty(redisData)) {
+            invoiceApplyLine = invoiceApplyLineRepository.selectByPrimary(applyLineId);
+            try {
+                String invoiceString = objectMapper.writeValueAsString(invoiceApplyLine);
+                redisHelper.strSet(Constants.REDIS_INVOICE_LINE_PREFIX + applyLineId, invoiceString, 300, TimeUnit.SECONDS);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                invoiceApplyLine = objectMapper.readValue(redisData, InvoiceApplyLineDTO.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return invoiceApplyLine;
+    }
+
     //validate
-    private void validate(List<InvoiceApplyLine> invoiceApplyLines) {
+    private void validate(List<InvoiceApplyLineDTO> invoiceApplyLines) {
         for (InvoiceApplyLine invoiceApplyLines1 : invoiceApplyLines) {
-            InvoiceApplyHeaderDTO invoiceApplyHeaderDTO =  invoiceApplyHeaderRepository.selectByPrimary(invoiceApplyLines1.getApplyHeaderId());
+            InvoiceApplyHeaderDTO invoiceApplyHeaderDTO = invoiceApplyHeaderRepository.selectByPrimary(invoiceApplyLines1.getApplyHeaderId());
             if (invoiceApplyHeaderDTO == null || invoiceApplyHeaderDTO.getDelFlag().equals(1)) {
                 throw new CommonException(Constants.ERROR_CODE_HEADER_INVALID);
+            }
+        }
+    }
+
+    @Override
+    public void redisUpdate(List<InvoiceApplyLineDTO> invoiceApplyLines) {
+        for (InvoiceApplyLineDTO invoiceApplyLineDTO : invoiceApplyLines) {
+            if (invoiceApplyLineDTO.getApplyHeaderId() != null) {
+                redisHelper.delKey(Constants.REDIS_INVOICE_LINE_PREFIX + invoiceApplyLineDTO.getApplyLineId());
             }
         }
     }
