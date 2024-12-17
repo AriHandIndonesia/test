@@ -5,6 +5,8 @@ import com.hand.demo.api.dto.InvoiceApplyLineDTO;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import com.hand.demo.domain.entity.InvoiceApplyLine;
+import org.hzero.core.base.AopProxy;
+
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ import java.util.List;
  * @author Zamzam
  * @since 2024-12-03 11:01:37
  */
-public interface InvoiceApplyLineService {
+public interface InvoiceApplyLineService extends AopProxy<InvoiceApplyLineService> {
 
     /**
      * 查询数据

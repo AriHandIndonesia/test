@@ -2,7 +2,6 @@ package com.hand.demo.domain.entity;
 
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.choerodon.mybatis.annotation.ModifyAudit;
@@ -15,17 +14,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.hzero.export.annotation.ExcelColumn;
-import org.hzero.export.annotation.ExcelSheet;
 
 /**
  * (InvoiceApplyLine)实体类
@@ -42,7 +37,6 @@ import org.hzero.export.annotation.ExcelSheet;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Table(name = "todo_invoice_apply_line")
 @Accessors(chain = true)
-@ExcelSheet(en = "Invoice Line")
 public class InvoiceApplyLine extends AuditDomain {
     private static final long serialVersionUID = -34514684423664147L;
 
@@ -79,11 +73,11 @@ public class InvoiceApplyLine extends AuditDomain {
     @ApiModelProperty("PK")
     @Id
     @GeneratedValue
+    @ExcelColumn(en = "applyLineId")
     private Long applyLineId;
 
     @JsonProperty("applyHeaderId")
     @ApiModelProperty(value = "header id")
-    @ExcelColumn(en = "applyHeaderId")
     private Long applyHeaderId;
 
     @JsonProperty("attribute1")
@@ -133,6 +127,7 @@ public class InvoiceApplyLine extends AuditDomain {
 
     @JsonProperty("contentName")
     @ExcelColumn(en = "contentName")
+    @NotNull(groups = Save.class, message = "multilingual")
     private String contentName;
 
     @JsonProperty("excludeTaxAmount")
@@ -142,14 +137,17 @@ public class InvoiceApplyLine extends AuditDomain {
 
     @JsonProperty("invoiceName")
     @ExcelColumn(en = "invoiceName")
+    @NotNull(groups = Save.class, message = "multilingual")
     private String invoiceName;
 
     @JsonProperty("quantity")
     @ExcelColumn(en = "quantity")
+    @NotNull(groups = Save.class, message = "multilingual")
     private BigDecimal quantity;
 
     @JsonProperty("remark")
     @ExcelColumn(en = "remark")
+    @NotNull(groups = Save.class, message = "hexam-47835.null_line_remark")
     private String remark;
 
     @JsonProperty("taxAmount")
@@ -158,14 +156,17 @@ public class InvoiceApplyLine extends AuditDomain {
 
     @JsonProperty("taxClassificationNumber")
     @ExcelColumn(en = "taxClassificationNumber")
+    @NotNull(groups = Save.class, message = "multilingual")
     private String taxClassificationNumber;
 
     @JsonProperty("taxRate")
     @ExcelColumn(en = "taxRate")
+    @NotNull(groups = Save.class, message = "multilingual")
     private BigDecimal taxRate;
 
     @JsonProperty("tenantId")
     @ExcelColumn(en = "tenantId")
+    @NotNull(groups = Save.class, message = "multilingual")
     private Long tenantId;
 
     @JsonProperty("totalAmount")
@@ -174,10 +175,12 @@ public class InvoiceApplyLine extends AuditDomain {
 
     @JsonProperty("unitPrice")
     @ExcelColumn(en = "unitPrice")
+    @NotNull(groups = Save.class, message = "multilingual")
     private BigDecimal unitPrice;
 
     @Transient
     private List<Long> applyHeaderIdList;
 
+    public interface Save { }
 }
 

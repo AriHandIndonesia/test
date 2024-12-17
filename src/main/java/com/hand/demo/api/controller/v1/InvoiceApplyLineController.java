@@ -1,7 +1,5 @@
 package com.hand.demo.api.controller.v1;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hand.demo.api.dto.InvoiceApplyHeaderDTO;
 import com.hand.demo.api.dto.InvoiceApplyLineDTO;
 import com.hand.demo.app.service.InvoiceApplyHeaderService;
@@ -15,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import org.hzero.boot.platform.lov.annotation.ProcessLovValue;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.base.BaseController;
-import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.Results;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
@@ -32,7 +29,6 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * (InvoiceApplyLine)表控制层
@@ -78,7 +74,7 @@ public class InvoiceApplyLineController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
     public ResponseEntity<List<InvoiceApplyLineDTO>> save(@PathVariable Long organizationId, @RequestBody List<InvoiceApplyLineDTO> invoiceApplyLines) {
-        validObject(invoiceApplyLines);
+        validList(invoiceApplyLines, InvoiceApplyLine.Save.class);
         SecurityTokenHelper.validTokenIgnoreInsert(invoiceApplyLines);
         invoiceApplyLines.forEach(item -> item.setTenantId(organizationId));
         invoiceApplyLineService.saveData(invoiceApplyLines);

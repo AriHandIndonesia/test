@@ -9,6 +9,7 @@ import com.hand.demo.domain.repository.InvoiceApplyHeaderRepository;
 import com.hand.demo.infra.constant.Constants;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.hzero.boot.imported.app.service.IBatchImportService;
 import org.hzero.boot.imported.infra.validator.annotation.ImportService;
 import org.hzero.mybatis.common.Criteria;
@@ -40,14 +41,14 @@ public class ImportHeaderServiceImpl implements IBatchImportService {
                 InvoiceApplyHeaderDTO invoiceApplyHeader = objectMapper.readValue(data.get(i), InvoiceApplyHeaderDTO.class);
                 invoiceApplyHeader.setTenantId(organizationId);
 
-                if (StringUtil.isNotEmpty(invoiceApplyHeader.getApplyHeaderNumber())){
+                if (StringUtils.isNotBlank(invoiceApplyHeader.getApplyHeaderNumber())) {
                     InvoiceApplyHeader existingHeader = new InvoiceApplyHeader();
                     existingHeader.setApplyHeaderNumber(invoiceApplyHeader.getApplyHeaderNumber());
 
                     // Retrieve the existing header
-//                existingHeader = invoiceApplyHeaderRepository.selectOne(existingHeader);
-                    Criteria criteria = new Criteria().where(InvoiceApplyHeader.FIELD_APPLY_HEADER_NUMBER);
-                    existingHeader = invoiceApplyHeaderRepository.selectOneOptional(existingHeader, criteria);
+                    existingHeader = invoiceApplyHeaderRepository.selectOne(existingHeader);
+//                    Criteria criteria = new Criteria().where(InvoiceApplyHeader.FIELD_APPLY_HEADER_NUMBER);
+//                    existingHeader = invoiceApplyHeaderRepository.selectOneOptional(existingHeader, criteria);
 
                     if (existingHeader != null) {
                         invoiceApplyHeader.setApplyHeaderId(existingHeader.getApplyHeaderId());

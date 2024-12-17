@@ -1,24 +1,17 @@
 package com.hand.demo.api.controller.v1;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.hand.demo.api.dto.InvoiceApplyHeaderDTO;
-import com.hand.demo.domain.entity.InvoiceApplyLine;
 import com.hand.demo.infra.util.Utils;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
-import io.choerodon.mybatis.util.StringUtil;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.hzero.boot.platform.lov.annotation.ProcessLovValue;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.base.BaseController;
-import org.hzero.core.cache.ProcessCacheValue;
 import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.Results;
 import org.hzero.export.annotation.ExcelExport;
@@ -28,16 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.hand.demo.app.service.InvoiceApplyHeaderService;
-import com.hand.demo.domain.entity.InvoiceApplyHeader;
 import com.hand.demo.domain.repository.InvoiceApplyHeaderRepository;
 import springfox.documentation.annotations.ApiIgnore;
+import com.hand.demo.api.dto.ExcelReportReqDTO;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * (InvoiceApplyHeader)表控制层
@@ -115,6 +105,15 @@ public class InvoiceApplyHeaderController extends BaseController {
                                                               HttpServletResponse response,
                                                               @PathVariable String organizationId) {
         return Results.success(invoiceApplyHeaderService.exportData(invoiceApplyHeaderDTO));
+    }
+
+    @ApiOperation(value = "excelReport")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/excel-report")
+    @ProcessLovValue(targetField = BaseConstants.FIELD_BODY)
+    public ResponseEntity<ExcelReportReqDTO> excelReport(@PathVariable Long organizationId,
+                                                         ExcelReportReqDTO excelReportReqDTO) {
+        return Results.success(invoiceApplyHeaderService.selectExcelReport(organizationId, excelReportReqDTO));
     }
 
 }

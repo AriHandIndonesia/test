@@ -27,4 +27,10 @@ public class InvoiceApplyHeaderDTO extends InvoiceApplyHeader{
     private String invoiceTypeMeaning;
     private List<Long> applyLineIdList;
 
+    private String realName;
+
+    private String lineInvoiceNames;
+
+    private boolean tenantAdminFlag;
+
 }

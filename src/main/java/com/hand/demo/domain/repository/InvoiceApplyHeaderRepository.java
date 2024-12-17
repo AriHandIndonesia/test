@@ -1,5 +1,6 @@
 package com.hand.demo.domain.repository;
 
+import com.hand.demo.api.dto.ExcelReportReqDTO;
 import com.hand.demo.api.dto.InvoiceApplyHeaderDTO;
 import org.hzero.mybatis.base.BaseRepository;
 import com.hand.demo.domain.entity.InvoiceApplyHeader;
@@ -28,4 +29,6 @@ public interface InvoiceApplyHeaderRepository extends BaseRepository<InvoiceAppl
      * @return 返回值
      */
     InvoiceApplyHeaderDTO selectByPrimary(Long applyHeaderId);
+
+    List<InvoiceApplyHeaderDTO> selectForReport(Long organizationId, ExcelReportReqDTO excelReportReqDTO);
 }

@@ -201,11 +201,12 @@ public class InvoiceApplyHeader extends AuditDomain{
 
     @JsonProperty("invoiceApplyLineList")
     @Transient
+    @ExcelColumn(promptCode = "child", promptKey = "child", child = true)
     private List<InvoiceApplyLineDTO> invoiceApplyLineList;
 
-    @Transient
-    @ExcelColumn(promptCode = "line", promptKey = "line", child = true)
-    private List<InvoiceApplyLineDTO> invoiceApplyLineListDto;
+//    @Transient
+//    @ExcelColumn(promptCode = "line", promptKey = "line", child = true)
+//    private List<InvoiceApplyLineDTO> invoiceApplyLineListDto;
 
 }
 

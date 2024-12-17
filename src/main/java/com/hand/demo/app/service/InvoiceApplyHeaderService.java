@@ -1,8 +1,10 @@
 package com.hand.demo.app.service;
 
+import com.hand.demo.api.dto.ExcelReportReqDTO;
 import com.hand.demo.api.dto.InvoiceApplyHeaderDTO;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hzero.core.base.AopProxy;
 
 import java.util.List;
 
@@ -12,7 +14,7 @@ import java.util.List;
  * @author Zamzam
  * @since 2024-12-03 11:01:36
  */
-public interface InvoiceApplyHeaderService {
+public interface InvoiceApplyHeaderService extends AopProxy<InvoiceApplyHeaderService>{
 
     /**
      * 查询数据
@@ -37,6 +39,9 @@ public interface InvoiceApplyHeaderService {
 
     void remove(Long organizationId, List<InvoiceApplyHeaderDTO> invoiceApplyHeaderDTO);
     void redisUpdate(List<InvoiceApplyHeaderDTO> invoiceApplyHeaders);
+
+    ExcelReportReqDTO selectExcelReport(Long organizationId, ExcelReportReqDTO excelReportReqDTO);
+    void insertLine(List<InvoiceApplyHeaderDTO> invoiceApplyHeaders);
 
 }
 
